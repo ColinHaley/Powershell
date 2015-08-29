@@ -9,10 +9,11 @@
 
         # Number of iterations to run against the class. Higher int == more time.
         [Parameter(Mandatory=$false,Position=1)]
-        [int]$Count,
+        [int]$Count = 100,
 
         # Class to target for WMI and CIM queries.
         [Parameter(Mandatory=$true,Position=2)]
+        [ValidateNotNullOrEmpty()]
         [string]$TargetClass
     )
 
@@ -34,12 +35,29 @@
             }
         }
         # Initialize variables for each test type to hold the averaged runtime values.
-
+        $CIMRuntimeAverage = 0
+        $WMIRuntimeAverage = 0
     }
     Process
     {
+        for ($i = 1; $i -lt $Count; $i++)
+            { 
+                $WMIRuntime = Measure-Command {
+                    Get-WmiObject -Class $TargetClass -ComputerName $ComputerName
+                    }
+                $CIMRuntime = Measure-Command {
+                    Get-CimInstance -ClassName $TargetClass -ComputerName $ComputerName
+                    }
+
+                $WMIRuntimeAverage += $WMIRuntime.TotalMilliseconds
+                $CIMRuntimeAverage += $CIMRuntime.TotalMilliseconds
+            }
     }
     End
     {
+
+        $returnObject = New-Object -TypeName psobject -Property @{'WMI Average Milliseconds'=$WMIRuntimeAverage/$Count;'CIM Average Milliseconds'=$CIMRuntimeAverage/$Count}
+
+        return $returnObject
     }
 }
