@@ -14,7 +14,21 @@ Function Do-Work{
 		Do-Work -ComputerName ThisComputer
 #>
 
+	PARAM (
+		[Alias("Comp","Hostname")]
+		[string[]]$ComputerName = $env:COMPUTERNAME,
+	)#PARAM
 
+	
+	BEGIN{
+		# Global Variables
 
+	}#BEGIN
+
+	PROCESS{
+
+		
+
+	}#PROCESS
 
 }#Function
